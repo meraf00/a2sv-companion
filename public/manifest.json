@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "A2SV Companion",
+  "description": "A2SV Companion Browser Extension",
+  "version": "1.0",
+  "icons": {
+    "16": "icons/icon_16.png",
+    "32": "icons/icon_32.png",
+    "48": "icons/icon_48.png",
+    "128": "icons/icon_128.png"
+  },
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "A2SV Companion",
+    "default_icon": "icons/icon_128.png"
+  },
+  "background": {
+    "service_worker": "services.js"
+  },
+  "content_scripts": [
+    {
+      "js": ["auth.content.js"],
+      "matches": ["https://a2sv.pythonanywhere.com/*"],
+      "run_at": "document_idle"
+    }
+  ],
+  "permissions": ["storage"]
+}
