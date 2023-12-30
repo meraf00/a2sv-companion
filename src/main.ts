@@ -1,4 +1,7 @@
+import './style.css';
 import config from './config';
+import { getRepos } from './lib/github';
+import { getLocalStorage } from './utils/readStorage';
 
 const login = () => {
   chrome.tabs.create({
@@ -6,15 +9,43 @@ const login = () => {
   });
 };
 
-const loginBtn = document.getElementById('btn');
+const logout = () => {
+  chrome.storage.local.clear(() => {});
+};
+
+const populateRepo = async (
+  selector: HTMLSelectElement,
+  selected: string = ''
+) => {
+  const repos = await getRepos();
+
+  repos.map((repo): void => {
+    const option = document.createElement('option');
+    option.value = repo.id.toString();
+    option.text = repo.name;
+    option.selected = repo.name === selected;
+    selector.appendChild(option);
+  });
+};
+
+const repoSelector = document.getElementById('repos');
+const loginBtn = document.getElementById('login-btn');
+const logoutBtn = document.getElementById('logout-btn');
+const uploadBtn = document.getElementById('upload-btn');
 const greeting = document.getElementById('greeting');
 
-chrome.storage.local.get(['token', 'user'], (result) => {
+chrome.storage.local.get(['token', 'user'], async (result) => {
+  console.log(repoSelector, loginBtn, logoutBtn, uploadBtn, greeting);
   if (result.token) {
     loginBtn.classList.toggle('hidden', true);
+    logoutBtn.classList.toggle('hidden', false);
+    uploadBtn.classList.toggle('hidden', false);
     greeting.classList.toggle('hidden', false);
-    greeting.innerHTML = `Hello, ${result.user.login}`;
-  }
+    greeting.innerHTML = `${result.user.login}`;
+
+    const selectedRepo = await getLocalStorage('selectedRepo');
+    populateRepo(repoSelector as HTMLSelectElement, selectedRepo);
+  }  
 });
 
 loginBtn.addEventListener('click', login);
