@@ -13,12 +13,18 @@ const authHandler = (
       tabId: sender.tab.id,
     });
 
-    getUser().then((user) => {
-      chrome.storage.local.set({
+    chrome.storage.local
+      .set({
         token: message.token,
-        user: user,
+      })
+      .then(() => {
+        getUser().then((user) => {
+          console.log(user, message);
+          chrome.storage.local.set({
+            user: user,
+          });
+        });
       });
-    });
   } else if (message.type === AuthEvent.AUTH_FAILURE) {
     chrome.action.setBadgeText({ text: 'Failed', tabId: sender.tab.id });
     chrome.action.setBadgeBackgroundColor({

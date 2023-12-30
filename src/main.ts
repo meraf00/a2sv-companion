@@ -45,7 +45,7 @@ chrome.storage.local.get(['token', 'user'], async (result) => {
 
     const selectedRepo = await getLocalStorage('selectedRepo');
     populateRepo(repoSelector as HTMLSelectElement, selectedRepo);
-  }  
+  }
 });
 
 loginBtn.addEventListener('click', login);
