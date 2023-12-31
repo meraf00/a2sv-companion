@@ -2,6 +2,7 @@ import './style.css';
 import config from './config';
 import { getRepos } from './lib/github';
 import { getLocalStorage } from './utils/readStorage';
+import Leetcode from './lib/leetcode/api';
 
 const login = () => {
   chrome.tabs.create({
@@ -35,7 +36,6 @@ const uploadBtn = document.getElementById('upload-btn');
 const greeting = document.getElementById('greeting');
 
 chrome.storage.local.get(['token', 'user'], async (result) => {
-  console.log(repoSelector, loginBtn, logoutBtn, uploadBtn, greeting);
   if (result.token) {
     loginBtn.classList.toggle('hidden', true);
     logoutBtn.classList.toggle('hidden', false);
@@ -49,3 +49,12 @@ chrome.storage.local.get(['token', 'user'], async (result) => {
 });
 
 loginBtn.addEventListener('click', login);
+logoutBtn.addEventListener('click', logout);
+document.getElementById('test').addEventListener('click', async () => {
+  console.log(await Leetcode.getTries('two-sum'));
+  console.log(
+    await Leetcode.getSubmissionDetails(
+      await Leetcode.getLastAcceptedSubmissionId('two-sum')
+    )
+  );
+});

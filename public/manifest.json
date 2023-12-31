@@ -24,6 +24,11 @@
       "run_at": "document_idle"
     }
   ],
-  "permissions": ["storage"],
-  "host_permissions": ["https://api.github.com/*"]
+  "permissions": ["storage", "activeTab"],
+  "host_permissions": [
+    "https://api.github.com/*",
+    "https://github.com/*",
+    "https://a2sv.pythonanywhere.com/*",
+    "https://leetcode.com/*"
+  ]
 }
