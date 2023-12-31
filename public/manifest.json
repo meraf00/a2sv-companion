@@ -22,9 +22,21 @@
       "js": ["auth.content.js"],
       "matches": ["https://a2sv.pythonanywhere.com/*"],
       "run_at": "document_idle"
+    },
+
+    {
+      "js": ["leetcode.content.js"],
+      "matches": ["https://leetcode.com/problems/*/submissions/"],
+      "run_at": "document_end"
+    },
+
+    {
+      "js": ["leetcode.content.js"],
+      "matches": ["https://codeforces.com/problemset/status*"],
+      "run_at": "document_end"
     }
   ],
-  "permissions": ["storage", "activeTab"],
+  "permissions": ["storage", "activeTab", "clipboardRead"],
   "host_permissions": [
     "https://api.github.com/*",
     "https://github.com/*",
