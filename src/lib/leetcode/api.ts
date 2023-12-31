@@ -1,4 +1,4 @@
-import { LeetcodeSubmission } from './types';
+import { LeetcodeSubmissionStatus, LeecodeSubmissionDetail } from './types';
 
 const leetcodeRequest = async (body: any) => {
   const response = await fetch('https://leetcode.com/graphql', {
@@ -19,7 +19,7 @@ const leetcodeRequest = async (body: any) => {
 
 const getSubmissions = async (
   questionSlug: string
-): Promise<LeetcodeSubmission[]> => {
+): Promise<LeetcodeSubmissionStatus[]> => {
   const graphQL = JSON.stringify({
     variables: { questionSlug: questionSlug, offset: 0, limit: 40 },
     query:
@@ -30,7 +30,7 @@ const getSubmissions = async (
 
   if (data) {
     const submissions = data.questionSubmissionList
-      .submissions as LeetcodeSubmission[];
+      .submissions as LeetcodeSubmissionStatus[];
     submissions.sort((a, b) => {
       return parseInt(b.timestamp) - parseInt(a.timestamp);
     });
@@ -55,14 +55,17 @@ const getLastAcceptedSubmissionId = async (
   return null;
 };
 
-const getSubmissionDetails = async (submissionId: number) => {
+const getSubmissionDetails = async (
+  submissionId: number
+): Promise<LeecodeSubmissionDetail> => {
   const graphQL = JSON.stringify({
     variables: { submissionId: submissionId },
     query:
       'query submissionDetails($submissionId: Int!) { submissionDetails(submissionId: $submissionId) { timestamp code lang { name } question { titleSlug title }} }',
   });
 
-  const data = await leetcodeRequest(graphQL);
+  const data = (await leetcodeRequest(graphQL))
+    .submissionDetails as LeecodeSubmissionDetail;
 
   return data;
 };
