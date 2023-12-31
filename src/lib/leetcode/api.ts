@@ -1,4 +1,4 @@
-import { getLangExtension } from '../../utils/lang';
+import { getLeetcodeLangExtension } from '../../utils/lang';
 import { upload } from '../github';
 import { LeetcodeSubmissionStatus, LeecodeSubmissionDetail } from './types';
 
@@ -98,7 +98,7 @@ const push = async (message: any, sendResponse: (response?: any) => void) => {
     );
 
     const tries = await getTries(question.titleSlug);
-    const ext = getLangExtension(lang.name);
+    const ext = getLeetcodeLangExtension(lang.name);
     const folderPath =
       message.folderPath[-1] == '/'
         ? message.folderPath

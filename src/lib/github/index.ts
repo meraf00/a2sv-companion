@@ -77,9 +77,7 @@ export const upload = async (
   } catch (e) {
     console.log(e);
   }
-
-  console.log(filePath, '<<<');
-
+  console.log(filePath, '<<<<<<<<<<<<<');
   const response = await octokit.rest.repos.createOrUpdateFileContents({
     owner: repoOwner,
     repo: repoName,

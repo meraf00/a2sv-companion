@@ -31,7 +31,7 @@
     },
 
     {
-      "js": ["leetcode.content.js"],
+      "js": ["codeforces.content.js"],
       "matches": ["https://codeforces.com/problemset/status*"],
       "run_at": "document_idle"
     }

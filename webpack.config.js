@@ -11,6 +11,11 @@ const entryPoints = {
     'src',
     'content/leetcode.content.ts'
   ),
+  'codeforces.content': path.resolve(
+    __dirname,
+    'src',
+    'content/codeforces.content.ts'
+  ),
 };
 
 module.exports = {

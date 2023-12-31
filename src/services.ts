@@ -1,5 +1,10 @@
-import { AuthContentScript, LeetcodeContentScript } from './scripts';
+import {
+  AuthContentScript,
+  CodeforcesContentScript,
+  LeetcodeContentScript,
+} from './scripts';
 import authHandler from './services/auth.service';
+import codeforcesHandler from './services/codeforces.service';
 import leetcodeHandler from './services/leetcode.service';
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -7,8 +12,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     authHandler(message, sender, sendResponse);
     return true;
   } else if (message.from === LeetcodeContentScript) {
-    console.log('we are here');
     leetcodeHandler(message, sender, sendResponse);
+    return true;
+  } else if (message.from === CodeforcesContentScript) {
+    codeforcesHandler(message, sender, sendResponse);
     return true;
   }
 });

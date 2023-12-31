@@ -1,12 +1,12 @@
 import './style.css';
-import config from './config';
+
 import { getRepos } from './lib/github';
 import { getLocalStorage } from './utils/readStorage';
 import Leetcode from './lib/leetcode/api';
 
 const login = () => {
   chrome.tabs.create({
-    url: `https://github.com/login/oauth/authorize?client_id=${config.clientId}`,
+    url: `https://github.com/apps/a2sv-companion/installations/new`,
   });
 };
 
@@ -22,9 +22,9 @@ const populateRepo = async (
 
   repos.map((repo): void => {
     const option = document.createElement('option');
-    option.value = repo.id.toString();
+    option.value = repo.name;
     option.text = repo.name;
-    option.selected = repo.id.toString() === selected;
+    option.selected = repo.name === selected;
     selector.appendChild(option);
   });
 };
@@ -48,7 +48,9 @@ chrome.storage.local.get(['token', 'user'], async (result) => {
     const selectedRepo = await getLocalStorage('selectedRepo');
     const folder = await getLocalStorage('folderPath');
 
-    folderField.setAttribute('value', folder);
+    if (folder) {
+      folderField.setAttribute('value', folder);
+    }
 
     populateRepo(repoSelector as HTMLSelectElement, selectedRepo);
   }
