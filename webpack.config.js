@@ -6,6 +6,11 @@ const entryPoints = {
   main: [path.resolve(__dirname, 'src', 'main.ts')],
   services: path.resolve(__dirname, 'src', 'services.ts'),
   'auth.content': path.resolve(__dirname, 'src', 'content/auth.content.ts'),
+  'leetcode.content': path.resolve(
+    __dirname,
+    'src',
+    'content/leetcode.content.ts'
+  ),
 };
 
 module.exports = {

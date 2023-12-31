@@ -24,7 +24,7 @@ const populateRepo = async (
     const option = document.createElement('option');
     option.value = repo.id.toString();
     option.text = repo.name;
-    option.selected = repo.name === selected;
+    option.selected = repo.id.toString() === selected;
     selector.appendChild(option);
   });
 };
@@ -34,22 +34,39 @@ const loginBtn = document.getElementById('login-btn');
 const logoutBtn = document.getElementById('logout-btn');
 const uploadBtn = document.getElementById('upload-btn');
 const greeting = document.getElementById('greeting');
+const folderField = document.getElementById('folder-path');
+const reposField = document.getElementById('repos') as HTMLSelectElement;
 
 chrome.storage.local.get(['token', 'user'], async (result) => {
   if (result.token) {
     loginBtn.classList.toggle('hidden', true);
     logoutBtn.classList.toggle('hidden', false);
-    uploadBtn.classList.toggle('hidden', false);
+
     greeting.classList.toggle('hidden', false);
     greeting.innerHTML = `${result.user.login}`;
 
     const selectedRepo = await getLocalStorage('selectedRepo');
+    const folder = await getLocalStorage('folderPath');
+
+    folderField.setAttribute('value', folder);
+
     populateRepo(repoSelector as HTMLSelectElement, selectedRepo);
   }
 });
 
 loginBtn.addEventListener('click', login);
 logoutBtn.addEventListener('click', logout);
+
+reposField.addEventListener('change', async (event) => {
+  const selectedRepo = (event.target as HTMLSelectElement).value;
+  await chrome.storage.local.set({ selectedRepo });
+});
+
+folderField.addEventListener('change', async (event) => {
+  const folderPath = (event.target as HTMLInputElement).value;
+  await chrome.storage.local.set({ folderPath });
+});
+
 document.getElementById('test').addEventListener('click', async () => {
   console.log(await Leetcode.getTries('two-sum'));
   console.log(
