@@ -90,38 +90,9 @@ const getTries = async (questionSlug: string) => {
   return minAccepted !== Infinity ? tries : 0;
 };
 
-const push = async (message: any, sendResponse: (response?: any) => void) => {
-  try {
-    const { submissionId, timeTaken } = message;
-    const { question, lang, code, timestamp } = await getSubmissionDetails(
-      submissionId
-    );
-
-    const tries = await getTries(question.titleSlug);
-    const ext = getLeetcodeLangExtension(lang.name);
-    const folderPath =
-      message.folderPath[-1] == '/'
-        ? message.folderPath
-        : `${message.folderPath}/`;
-    const fileRelativePath = `${folderPath}leetcode/${question.titleSlug}.${ext}`;
-    const fileUrl = await upload(
-      message.repo,
-      fileRelativePath,
-      code,
-      `Add solution for ${question.title}`
-    );
-
-    sendResponse({ status: 'success' });
-  } catch (e) {
-    sendResponse({ error: e.message });
-    return;
-  }
-};
-
 export default {
   getSubmissions,
   getSubmissionDetails,
   getLastAcceptedSubmissionId,
   getTries,
-  push,
 };

@@ -19,7 +19,6 @@ const authHandler = (
       })
       .then(() => {
         getUser().then((user) => {
-          console.log(user, message);
           chrome.storage.local.set({
             user: user,
           });

@@ -1,136 +1,66 @@
-import { pushLastSubmissionToSheets } from '../leetcode.content';
+import { LeetcodeEvent } from '../../events';
+import { LeetcodeContentScript } from '../../scripts';
 
-const onMutation = (mutationObserver: MutationObserver) => {
-  mutationObserver.disconnect();
-  injectContent();
-  observe(mutationObserver);
-};
+const injectContent = (observer: MutationObserver, observe: () => void) => {
+  if (document.getElementById('push-to-sheets-btn')) return;
 
-const observe = (mutationObserver: MutationObserver) => {
-  mutationObserver.observe(document, {
-    subtree: true,
-    childList: true,
-  });
-};
+  const buttons = [].slice.call(
+    document.getElementsByTagName('button')
+  ) as HTMLButtonElement[];
 
-const injectContent = () => {
-  let isOldUi = false;
+  const submitBtn = buttons.filter(
+    (btn) => btn.getAttribute('data-cy') === 'submit-code-btn'
+  )[0];
 
-  document.querySelectorAll('div').forEach((div) => {
-    isOldUi ||= div.innerText === 'NEW';
-  });
+  const pushBtn = submitBtn.cloneNode(true) as HTMLButtonElement;
+  const timeField = document.createElement('input') as HTMLInputElement;
 
-  if (isOldUi) {
-    const isButtonCreated = setupPushLastSubmissionButton();
-    if (isButtonCreated) setupTimeTakenField();
-  }
-};
+  timeField.id = 'time-taken-field';
+  timeField.type = 'number';
+  timeField.placeholder = 'Time taken (in minutes)';
+  timeField.classList.add('input__2o8B');
+  timeField.style.padding = '0.3rem';
+  timeField.style.marginLeft = '10px';
+  timeField.style.marginRight = '10px';
+  timeField.style.width = '200px';
 
-const onPushToSheetButtonClicked = () => {
-  const pushLastSubmissionButton = document.getElementById(
-    'push-to-sheets-button'
-  );
-  const timeTakenField = document.getElementById(
-    'time-taken-input'
-  ) as HTMLInputElement;
+  pushBtn.id = 'push-to-sheets-btn';
+  pushBtn.textContent = '';
 
-  if (timeTakenField.hidden) {
-    timeTakenField.hidden = false;
-    pushLastSubmissionButton.childNodes[1].textContent = 'Cancel';
-    return;
-  }
+  pushBtn.classList.add('submit__2ISl');
+  pushBtn.classList.add('css-ieo3pr');
 
-  if (timeTakenField.value === '') {
-    timeTakenField.hidden = true;
-    pushLastSubmissionButton.childNodes[1].textContent = 'Push last submission';
-    return;
-  }
+  const span = document.createElement('span');
+  span.classList.add('css-1km43m6-BtnContent');
+  span.classList.add('e5i1odf0');
+  span.textContent = 'Push Last Submission';
 
-  var titleSlug = window.location.href.replace(
-    'https://leetcode.com/problems/',
-    ''
-  );
-  titleSlug = titleSlug.split('/')[0];
-  pushLastSubmissionToSheets(timeTakenField.value, titleSlug);
-};
+  pushBtn.appendChild(span);
 
-const setupPushLastSubmissionButton = () => {
-  const existingButton = document.getElementById('push-to-sheets-button');
+  pushBtn.addEventListener('click', async () => {
+    if (timeField.value == '') return;
 
-  if (existingButton) {
-    const container = existingButton.parentElement;
-    container.removeChild(existingButton);
-  }
-
-  let submitSpan: HTMLSpanElement = null;
-  document.querySelectorAll('span').forEach((it) => {
-    if (it.innerText === 'Submit') submitSpan = it;
+    chrome.runtime.sendMessage(
+      {
+        from: LeetcodeContentScript,
+        type: LeetcodeEvent.PUSH_LAST_SUBMISSION_TO_SHEETS,
+        timeTaken: timeField.value,
+        questionSlug: window.location.pathname.split('/')[2],
+      },
+      (result) => {
+        if (result.status === 'success') {
+          alert('Pushed to sheet!');
+        } else {
+          alert('Failed to push to sheet!');
+        }
+      }
+    );
   });
 
-  if (submitSpan != null) {
-    const button = submitSpan.parentElement;
-
-    const container = button.parentElement;
-    container.style.alignItems = 'center';
-
-    const newButton = button.cloneNode(true) as HTMLButtonElement;
-    newButton.childNodes.forEach((node) => {
-      newButton.removeChild(node);
-    });
-    newButton.setAttribute('id', 'push-to-sheets-button');
-    newButton.addEventListener('click', onPushToSheetButtonClicked);
-    newButton.style.marginLeft = '10px';
-    newButton.style.width = '10rem';
-
-    const loadingDiv = document.createElement('span');
-    loadingDiv.setAttribute('id', 'push-to-sheets-loading');
-    loadingDiv.setAttribute('class', 'hidden loader');
-    loadingDiv.style.margin = '0.5rem';
-
-    // replace the svg with in the new button with the loading div
-    newButton.appendChild(loadingDiv);
-    newButton.appendChild(document.createTextNode('Push last submission'));
-    button.parentElement.appendChild(newButton);
-    return true;
-  }
+  observer.disconnect();
+  submitBtn.parentNode.insertBefore(timeField, submitBtn.nextSibling);
+  submitBtn.parentNode.insertBefore(pushBtn, timeField.nextSibling);
+  observe();
 };
 
-const setupTimeTakenField = () => {
-  const existingTimeTakenField = document.getElementById('time-taken-input');
-  if (existingTimeTakenField != null) return;
-
-  const timeTakenField = document.createElement('input') as HTMLInputElement;
-  timeTakenField.setAttribute('id', 'time-taken-input');
-  timeTakenField.setAttribute('type', 'number');
-  timeTakenField.setAttribute('placeholder', 'Time taken (in minutes)');
-  timeTakenField.setAttribute('class', 'input__2o8B');
-  timeTakenField.setAttribute('hidden', 'true');
-  timeTakenField.setAttribute(
-    'style',
-    'padding: 0.5rem; margin-left: 10px; width: 200px;'
-  );
-
-  timeTakenField.addEventListener('input', (event) => {
-    const pushToSheetsButton = document.getElementById('push-to-sheets-button');
-    const inputElement = event.target as HTMLInputElement;
-    if (inputElement.value === '')
-      pushToSheetsButton.childNodes[1].textContent = 'Cancel';
-    else pushToSheetsButton.childNodes[1].textContent = 'Upload';
-  });
-
-  // Add the time taken field before the push to sheets button
-  const pushToSheetsButton = document.getElementById('push-to-sheets-button');
-  pushToSheetsButton.parentElement.insertBefore(
-    timeTakenField,
-    pushToSheetsButton
-  );
-};
-
-export default {
-  onMutation,
-  observe,
-  injectContent,
-  setupPushLastSubmissionButton,
-  setupTimeTakenField,
-  onPushToSheetButtonClicked,
-};
+export default { injectContent };

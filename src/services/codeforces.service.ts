@@ -34,7 +34,7 @@ const push = async (
         ' ',
         '-'
       )}.${getCodeforcesLangExtenson(submission.programmingLanguage)}`;
-      path += filename;
+      path += 'codeforces/' + filename;
 
       upload(selectedRepo, path, code, commitMsg).then((gitUrl) => {
         Codeforces.getTries(codeforcesHandle, submission.id)

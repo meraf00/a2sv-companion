@@ -74,9 +74,7 @@ export const upload = async (
     } else {
       sha = fileResponse.data.sha;
     }
-  } catch (e) {
-    console.log(e);
-  }
+  } catch (e) {}
 
   const response = await octokit.rest.repos.createOrUpdateFileContents({
     owner: repoOwner,

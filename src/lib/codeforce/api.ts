@@ -30,7 +30,6 @@ const getLastSubmission = async (
 
 const getTries = async (codeforcesHandle: string, submissionId: number) => {
   const submissions = await getSubmissions(codeforcesHandle);
-  console.log(submissions, codeforcesHandle);
 
   let contestId, problemIndex, creationTimeSeconds;
 

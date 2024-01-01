@@ -79,12 +79,3 @@ studentName.addEventListener('change', async (event) => {
   const studentName = (event.target as HTMLInputElement).value;
   await chrome.storage.local.set({ studentName });
 });
-
-document.getElementById('test').addEventListener('click', async () => {
-  console.log(await Leetcode.getTries('two-sum'));
-  console.log(
-    await Leetcode.getSubmissionDetails(
-      await Leetcode.getLastAcceptedSubmissionId('two-sum')
-    )
-  );
-});
