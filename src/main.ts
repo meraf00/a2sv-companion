@@ -2,7 +2,6 @@ import './style.css';
 
 import { getRepos } from './lib/github';
 import { getLocalStorage } from './utils/readStorage';
-import Leetcode from './lib/leetcode/api';
 
 const login = () => {
   chrome.tabs.create({
