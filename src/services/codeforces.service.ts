@@ -10,7 +10,9 @@ const push = async (
   submission: CodeforcesSubmission,
   timeTaken: number,
   code: string,
-  questionUrl: string
+  questionUrl: string,
+  onSuccess: () => void,
+  onFailure: () => void
 ) => {
   chrome.storage.local
     .get(['selectedRepo', 'folderPath', 'studentName'])
@@ -35,16 +37,19 @@ const push = async (
       path += filename;
 
       upload(selectedRepo, path, code, commitMsg).then((gitUrl) => {
-        Codeforces.getTries(codeforcesHandle, submission.id).then((tries) => {
-          A2SV.pushToSheet(
-            studentName,
-            tries,
-            timeTaken,
-            questionUrl,
-            'Codeforces',
-            gitUrl
-          );
-        });
+        Codeforces.getTries(codeforcesHandle, submission.id)
+          .then((tries) => {
+            A2SV.pushToSheet(
+              studentName,
+              tries,
+              timeTaken,
+              questionUrl,
+              'Codeforces',
+              gitUrl
+            );
+          })
+          .then(onSuccess)
+          .catch((e) => onFailure());
       });
     });
 };
@@ -66,7 +71,9 @@ const codeforcesHandler = (
       message.submission,
       message.timeTaken,
       message.code,
-      message.questionUrl
+      message.questionUrl,
+      () => sendResponse(true),
+      () => sendResponse(false)
     );
   }
 };

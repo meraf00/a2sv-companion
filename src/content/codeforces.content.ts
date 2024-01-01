@@ -39,8 +39,16 @@ pushBtn.addEventListener('click', async () => {
           questionUrl,
           submission: response,
         },
-        (response) => {
-          console.log(response);
+        (success) => {
+          if (success) {
+            alert('Pushed to sheet!');
+          } else {
+            alert('Failed to push to sheet!');
+          }
+
+          (
+            document.getElementsByClassName('close')[0] as HTMLAnchorElement
+          ).click();
         }
       );
     }
