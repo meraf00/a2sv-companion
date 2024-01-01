@@ -26,9 +26,8 @@ pushBtn.addEventListener('click', async () => {
       codeforcesHandle: getUserHandle(),
     },
     async (response: CodeforcesSubmission) => {
-      const { timeTaken, code } = await getSubmissionCodeAndTimeTaken(
-        response.id.toString()
-      );
+      const { timeTaken, code, questionUrl } =
+        await getSubmissionCodeAndTimeTaken(response.id.toString());
 
       chrome.runtime.sendMessage(
         {
@@ -37,6 +36,7 @@ pushBtn.addEventListener('click', async () => {
           codeforcesHandle: getUserHandle(),
           code,
           timeTaken,
+          questionUrl,
           submission: response,
         },
         (response) => {

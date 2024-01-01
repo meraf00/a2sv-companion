@@ -28,24 +28,35 @@ const getLastSubmission = async (
   return null;
 };
 
-const getTries = async (codeforcesHandle: string, submissionId: string) => {
-  const id = parseInt(submissionId);
-
+const getTries = async (codeforcesHandle: string, submissionId: number) => {
   const submissions = await getSubmissions(codeforcesHandle);
-  let minAccepted = Infinity;
+  console.log(submissions, codeforcesHandle);
+
+  let contestId, problemIndex, creationTimeSeconds;
 
   for (let submission of submissions) {
-    if (submission.verdict === 'OK')
-      minAccepted = Math.min(minAccepted, submission.creationTimeSeconds);
+    if (submission.id === submissionId) {
+      contestId = submission.problem.contestId;
+      problemIndex = submission.problem.index;
+      creationTimeSeconds = submission.creationTimeSeconds;
+      break;
+    }
   }
 
   let tries = 1;
 
   for (let submission of submissions) {
-    if (submission.creationTimeSeconds < minAccepted) tries++;
+    if (
+      submission.problem.contestId === contestId &&
+      submission.problem.index === problemIndex &&
+      submission.verdict !== 'OK' &&
+      submission.creationTimeSeconds < creationTimeSeconds
+    ) {
+      tries++;
+    }
   }
 
-  return minAccepted !== Infinity ? tries : 0;
+  return tries;
 };
 
 export default {

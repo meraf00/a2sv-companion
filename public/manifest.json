@@ -41,6 +41,7 @@
     "https://api.github.com/*",
     "https://github.com/*",
     "https://a2sv.pythonanywhere.com/*",
-    "https://leetcode.com/*"
+    "https://leetcode.com/*",
+    "http://localhost:5000/*"
   ]
 }

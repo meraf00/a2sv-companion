@@ -33,6 +33,7 @@ const repoSelector = document.getElementById('repos');
 const loginBtn = document.getElementById('login-btn');
 const logoutBtn = document.getElementById('logout-btn');
 const uploadBtn = document.getElementById('upload-btn');
+const studentName = document.getElementById('student-name');
 const greeting = document.getElementById('greeting');
 const folderField = document.getElementById('folder-path');
 const reposField = document.getElementById('repos') as HTMLSelectElement;
@@ -45,11 +46,16 @@ chrome.storage.local.get(['token', 'user'], async (result) => {
     greeting.classList.toggle('hidden', false);
     greeting.innerHTML = `${result.user.login}`;
 
+    const student = await getLocalStorage('studentName');
     const selectedRepo = await getLocalStorage('selectedRepo');
     const folder = await getLocalStorage('folderPath');
 
     if (folder) {
       folderField.setAttribute('value', folder);
+    }
+
+    if (student) {
+      studentName.setAttribute('value', student);
     }
 
     populateRepo(repoSelector as HTMLSelectElement, selectedRepo);
@@ -67,6 +73,11 @@ reposField.addEventListener('change', async (event) => {
 folderField.addEventListener('change', async (event) => {
   const folderPath = (event.target as HTMLInputElement).value;
   await chrome.storage.local.set({ folderPath });
+});
+
+studentName.addEventListener('change', async (event) => {
+  const studentName = (event.target as HTMLInputElement).value;
+  await chrome.storage.local.set({ studentName });
 });
 
 document.getElementById('test').addEventListener('click', async () => {
