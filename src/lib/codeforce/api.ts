@@ -28,6 +28,21 @@ const getLastSubmission = async (
   return null;
 };
 
+const getSubmission = async (
+  codeforcesHandle: string,
+  submissionId: number
+) => {
+  const submissions = await getSubmissions(codeforcesHandle);
+
+  for (let submission of submissions) {
+    if (submission.id === submissionId) {
+      return submission;
+    }
+  }
+
+  return null;
+};
+
 const getTries = async (codeforcesHandle: string, submissionId: number) => {
   const submissions = await getSubmissions(codeforcesHandle);
 
@@ -60,6 +75,7 @@ const getTries = async (codeforcesHandle: string, submissionId: number) => {
 
 export default {
   getSubmissions,
+  getSubmission,
   getLastSubmission,
   getTries,
 };
