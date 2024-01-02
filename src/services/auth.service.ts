@@ -21,6 +21,8 @@ const authHandler = (
         getUser().then((user) => {
           chrome.storage.local.set({
             user: user,
+            folderPath: '',
+            studentName: '',
           });
         });
       });
