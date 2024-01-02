@@ -1,8 +1,10 @@
 import { CodeforcesEvent } from '../events';
 import { CodeforcesSubmission } from '../lib/codeforce/types';
+import CodeforccesAPI from '../lib/codeforce/api';
 import { CodeforcesContentScript } from '../scripts';
 import {
-  getSubmissionCodeAndTimeTaken,
+  getSubmissionAnchors,
+  getSubmissionDetail,
   getUserHandle,
 } from './codeforces/parseui';
 
@@ -26,31 +28,62 @@ pushBtn.addEventListener('click', async () => {
       codeforcesHandle: getUserHandle(),
     },
     async (response: CodeforcesSubmission) => {
-      const { timeTaken, code, questionUrl } =
-        await getSubmissionCodeAndTimeTaken(response.id.toString());
-
-      chrome.runtime.sendMessage(
-        {
-          from: CodeforcesContentScript,
-          type: CodeforcesEvent.PUSH_LAST_SUBMISSION_TO_SHEETS,
-          codeforcesHandle: getUserHandle(),
-          code,
-          timeTaken,
-          questionUrl,
-          submission: response,
-        },
-        (success) => {
-          if (success) {
-            alert('Pushed to sheet!');
-          } else {
-            alert('Failed to push to sheet!');
-          }
-
-          (
-            document.getElementsByClassName('close')[0] as HTMLAnchorElement
-          ).click();
-        }
-      );
+      const solutionAnchors = getSubmissionAnchors();
+      const submissionAnchor = solutionAnchors.filter(
+        (anchor) =>
+          anchor.getAttribute('submissionid') === response.id.toString()
+      )[0];
+      submissionAnchor.click();
     }
   );
 });
+
+const hookSubmissionAnchors = () => {
+  // get submission anchors to click on the one with the given submissionid
+  const solutionAnchors = getSubmissionAnchors();
+
+  for (let anchor of solutionAnchors) {
+    anchor.addEventListener('click', async () => {
+      const submissionId = anchor.getAttribute('submissionid');
+      try {
+        const { timeTaken, code, questionUrl } = await getSubmissionDetail(
+          submissionId
+        );
+
+        const codeforceHandle = getUserHandle();
+
+        const submission = await CodeforccesAPI.getSubmission(
+          codeforceHandle,
+          parseInt(submissionId)
+        );
+
+        chrome.runtime.sendMessage(
+          {
+            from: CodeforcesContentScript,
+            type: CodeforcesEvent.PUSH_SUBMISSION_TO_SHEETS,
+            codeforcesHandle: getUserHandle(),
+            code,
+            timeTaken,
+            questionUrl,
+            submission,
+          },
+          (success) => {
+            if (success) {
+              alert('Pushed to sheet!');
+            } else {
+              alert('Failed to push to sheet!');
+            }
+
+            (
+              document.getElementsByClassName('close')[0] as HTMLAnchorElement
+            ).click();
+          }
+        );
+      } catch (e) {
+        return;
+      }
+    });
+  }
+};
+
+hookSubmissionAnchors();

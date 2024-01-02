@@ -65,7 +65,7 @@ const codeforcesHandler = (
         sendResponse(submission);
       }
     );
-  } else if (message.type === CodeforcesEvent.PUSH_LAST_SUBMISSION_TO_SHEETS) {
+  } else if (message.type === CodeforcesEvent.PUSH_SUBMISSION_TO_SHEETS) {
     push(
       message.codeforcesHandle,
       message.submission,
