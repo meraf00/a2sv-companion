@@ -41,9 +41,8 @@ export const getRepoInfo = async (repository: string) => {
 
   const repoOwner = repo.data.owner.login;
   const repoName = repo.data.name;
-  const rootPath = repo.data.default_branch;
 
-  return { repoOwner, repoName, rootPath };
+  return { repoOwner, repoName };
 };
 
 export const upload = async (
@@ -54,12 +53,13 @@ export const upload = async (
 ) => {
   const octokit = await getOctokit();
 
-  var { repoOwner, repoName, rootPath } = await getRepoInfo(repo);
+  var { repoOwner, repoName } = await getRepoInfo(repo);
 
-  if (rootPath.endsWith('/'))
-    rootPath = rootPath.substring(0, rootPath.length - 1);
+  if (relativePath[0] === '/') {
+    relativePath = relativePath.slice(1);
+  }
 
-  const filePath = `${rootPath}/${relativePath}`;
+  const filePath = relativePath;
   let sha;
 
   try {
