@@ -44,7 +44,8 @@
   "host_permissions": [
     "https://api.github.com/*",
     "https://github.com/*",
-    "https://a2sv-companion-backend.vercel.app/*",
+    "https://a2sv-companion-dev.vercel.app/*",
+    "https://a2sv-companion.vercel.app/*",
     "https://leetcode.com/*",
     "http://localhost:5000/*"
   ]
