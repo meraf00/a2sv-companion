@@ -39,7 +39,7 @@
       "run_at": "document_idle"
     }
   ],
-  "permissions": ["storage", "activeTab", "clipboardRead", "sidePanel"],
+  "permissions": ["storage", "activeTab", "clipboardRead", "sidePanel", "notifications", "tabs"],
 
   "host_permissions": [
     "https://api.github.com/*",

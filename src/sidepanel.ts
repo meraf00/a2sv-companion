@@ -1,38 +1,67 @@
 // Mock data for coding platforms and questions
-import {upload} from './lib/github/index'
-async function getPlatforms(): Promise<string[]> {
-  populateDropdown("coding-platform", ["loading..."]);
-  const rq = await fetch(
-    "https://294e5460-8d4f-455f-8a94-41db2a34fb38.mock.pstmn.io/platform",
-  );
-  let data = await rq.json();
-  populateDropdown("coding-platform", data.platforms);
-  populateDropdown("available-questions", ["loading..."]);
-  const question = await getQuestions(data.platforms[0].toLowerCase());
+import { upload } from "./lib/github/index";
+import a2sv from "./lib/a2sv/index";
+import "./style.css";
+import config from "./config";
+interface PlatformData {
+  platforms: string[];
+}
+
+async function fetchData(url: string): Promise<any> {
+  const response = await fetch(url);
+  const data = await response.json();
   return data;
 }
 
+async function getPlatforms(): Promise<PlatformData> {
+  populateDropdown("coding-platform", ["loading..."]);
+
+  try {
+    const data = await fetchData(`${config.api.mockUrl}/platform`);
+    populateDropdown("coding-platform", data.platforms);
+    await getQuestions(data.platforms[0].toLowerCase());
+    return data;
+  } catch (error) {
+    console.error("Error fetching platform data:", error);
+    chrome.notifications.create("a2sv-companion", {
+      type: "basic",
+      iconUrl: "icons/icon_128.png",
+      title: "Error",
+      message: "An error occured while fetching platform data",
+    });
+    // Handle the error as needed
+    return { platforms: [] };
+  }
+}
+
 getPlatforms();
+
 async function getQuestions(platform: string) {
   populateQuestionDropDown("available-questions", [
     { URL: "loading...", Title: "loading..." },
   ]);
-  const rq = await fetch(
-    `https://294e5460-8d4f-455f-8a94-41db2a34fb38.mock.pstmn.io/platform/${platform}/question`,
-  );
-  let data = await rq.json();
-  populateQuestionDropDown(
-    "available-questions",
-    data.questions as QuestionInterface[],
-  );
-  return data;
-}
 
-const availableQuestions: Record<string, string[]> = {
-  LeetCode: ["Question 1", "Question 2", "Question 3"],
-  HackerRank: ["Problem A", "Problem B", "Problem C"],
-  CodeSignal: ["Task X", "Task Y", "Task Z"],
-};
+  try {
+    const data = await fetchData(
+      `${config.api.mockUrl}/platform/${platform}/question`,
+    );
+    populateQuestionDropDown(
+      "available-questions",
+      data.questions as QuestionInterface[],
+    );
+    return data;
+  } catch (error) {
+    console.error("Error fetching question data:", error);
+    chrome.notifications.create("a2sv-companion", {
+      type: "basic",
+      iconUrl: "icons/icon_128.png",
+      title: "Error",
+      message: "An error occured while fetching question data",
+    });
+    // Handle the error as needed
+    return { questions: [] };
+  }
+}
 
 // Function to populate dropdown options
 function populateDropdown(
@@ -43,15 +72,14 @@ function populateDropdown(
   const selectElement = document.getElementById(selectId) as HTMLSelectElement;
   selectElement.innerHTML = ""; // Clear existing options
   options.forEach((option) => {
-    const optionElement = document.createElement("option");
-    optionElement.value = option;
-    optionElement.text = option;
+    const optionElement = createOptionElement(option, option);
     selectElement.add(optionElement);
   });
   if (selectedValue) {
     selectElement.value = selectedValue;
   }
 }
+
 interface QuestionInterface {
   URL: string;
   Title: string;
@@ -64,11 +92,16 @@ function populateQuestionDropDown(
   const selectElement = document.getElementById(selectId) as HTMLSelectElement;
   selectElement.innerHTML = ""; // Clear existing options
   options.forEach((option) => {
-    const optionElement = document.createElement("option");
-    optionElement.value = option.URL;
-    optionElement.text = option.Title;
+    const optionElement = createOptionElement(option.URL, option.Title);
     selectElement.add(optionElement);
   });
+}
+
+function createOptionElement(value: string, text: string): HTMLOptionElement {
+  const optionElement = document.createElement("option");
+  optionElement.value = value;
+  optionElement.text = text;
+  return optionElement;
 }
 
 // Event listener for coding platform change
@@ -78,32 +111,13 @@ document
     const selectedPlatform = (this as HTMLSelectElement).value as string;
     await getQuestions(selectedPlatform.toLowerCase());
   });
-function getFormValues(): {
-  codingPlatform: string;
-  availableQuestions: string;
-  code: string;
-  timeTaken: number;
-  attempts: number;
-} {
-  const codingPlatform = (
-    document.getElementById("coding-platform") as HTMLSelectElement
-  ).value;
-  const availableQuestions = (
-    document.getElementById("available-questions") as HTMLSelectElement
-  ).value;
-  const code = (
-    document.getElementById("code") as HTMLTextAreaElement
-  ).value.trim();
-  const timeTaken =
-    parseInt(
-      (document.getElementById("time-taken") as HTMLInputElement).value,
-      10,
-    ) || 0;
-  const attempts =
-    parseInt(
-      (document.getElementById("attempts") as HTMLInputElement).value,
-      10,
-    ) || 0;
+
+function getFormValues(): FormValues {
+  const codingPlatform = getValueById("coding-platform");
+  const availableQuestions = getValueById("available-questions");
+  const code = getValueById("code").trim();
+  const timeTaken = parseInt(getValueById("time-taken"), 10) || 0;
+  const attempts = parseInt(getValueById("attempts"), 10) || 0;
   return {
     codingPlatform,
     availableQuestions,
@@ -112,6 +126,19 @@ function getFormValues(): {
     attempts,
   };
 }
+
+function getValueById(id: string): string {
+  return (document.getElementById(id) as HTMLSelectElement).value;
+}
+
+interface FormValues {
+  codingPlatform: string;
+  availableQuestions: string;
+  code: string;
+  timeTaken: number;
+  attempts: number;
+}
+
 function checkFields() {
   const { codingPlatform, availableQuestions, code, timeTaken, attempts } =
     getFormValues();
@@ -126,60 +153,132 @@ function checkFields() {
     timeTaken &&
     attempts
   );
-  if (submitButton.disabled) {
-    // Change to disabled styles
-    submitButton.classList.remove("bg-blue-500", "hover:bg-blue-600");
-    submitButton.classList.add(
-      "bg-gray-500",
-      "text-gray-400",
-      "cursor-not-allowed",
-    );
+  updateSubmitButtonStyle(submitButton.disabled);
+}
+
+function updateSubmitButtonStyle(disabled: boolean) {
+  const submitButton = document.getElementById(
+    "submit-btn",
+  ) as HTMLButtonElement;
+  if (disabled) {
+    submitButton.classList.remove("hover:bg-blue-600");
+    submitButton.classList.add("cursor-not-allowed");
   } else {
-    // Change to enabled styles
-    submitButton.classList.remove(
-      "bg-gray-500",
-      "text-gray-400",
-      "cursor-not-allowed",
-    );
-    submitButton.classList.add("bg-blue-500", "hover:bg-blue-600");
+    submitButton.classList.remove("cursor-not-allowed");
+    submitButton.classList.add("hover:bg-blue-600");
   }
 }
+
 function onSubmit() {
+  const submitBtn = document.getElementById("submit-btn") as HTMLButtonElement;
+  submitBtn.disabled = true; // Disable the button to prevent multiple submissions
+  submitBtn.innerHTML = "submiting...";
+  submitBtn.classList.add("cursor-not-allowed");
+
   const formdata = getFormValues();
-  console.log(formdata, "from on submit")
+
   chrome.storage.local
     .get(["selectedRepo", "folderPath", "studentName"])
     .then((storage) => {
-      const ext = 'py';
-      const questionRef = document.getElementById("available-questions") as HTMLSelectElement;
-      let question = questionRef.options[questionRef.selectedIndex].text.replace(/\s+/g, '');
-      console.log(question);
+      const ext = "py";
+      const questionRef = document.getElementById(
+        "available-questions",
+      ) as HTMLSelectElement;
+      let question = questionRef.options[
+        questionRef.selectedIndex
+      ].text.replace(/\s+/g, "");
+
       const folderPath =
-      storage.folderPath[storage.folderPath.length - 1] == '/'
+        storage.folderPath[storage.folderPath.length - 1] === "/"
+          ? storage.folderPath
+          : `${storage.folderPath}/`;
 
-        ? storage.folderPath
-        : `${storage.folderPath}/`;
       const fileRelativePath = `${folderPath}${formdata.codingPlatform}/${question}.${ext}`;
-      console.log(fileRelativePath)
 
+      upload(
+        storage.selectedRepo,
+        fileRelativePath,
+        formdata.code,
+        `Add solution for ${question}`,
+      )
+        .then((gitUrl) => {
+          a2sv
+            .pushToSheet(
+              storage.studentName,
+              formdata.attempts,
+              formdata.timeTaken,
+              formdata.availableQuestions,
+              formdata.codingPlatform,
+              gitUrl,
+            )
+            .then((result) => {
+              // send notification
 
-      upload(storage.selectedRepo, fileRelativePath, formdata.code, "commit message").then((gitUrl) => {
-        console.log(gitUrl)
-    });});
+              if (result) {
+                submitBtn.innerHTML = "submitted";
+                submitBtn.classList.remove("hover:bg-blue-600");
+                submitBtn.classList.remove("bg-blue-500");
+                submitBtn.classList.add("bg-green-500");
+                submitBtn.classList.add("cursor-not-allowed");
+                sendNotification("Success", "Your solution has been submitted");
+                setTimeout(() => {
+                  submitBtn.innerHTML = "submit";
+                  submitBtn.disabled = false;
+                  submitBtn.classList.remove("bg-green-500");
+                  submitBtn.classList.remove("cursor-not-allowed");
+                  submitBtn.classList.add("bg-blue-500");
+                  submitBtn.classList.add("hover:bg-blue-600");
+                }, 3000);
+              } else {
+                submitBtn.innerHTML = "error";
+                submitBtn.classList.remove("hover:bg-blue-600");
+                submitBtn.classList.remove("bg-blue-500");
+                submitBtn.classList.add("bg-red-500");
+                submitBtn.classList.add("cursor-not-allowed");
+                sendNotification("Error", "An error occured while submitting");
+                setTimeout(() => {
+                  submitBtn.innerHTML = "submit";
+                  submitBtn.disabled = false;
+                  submitBtn.classList.remove("cursor-not-allowed");
+                  submitBtn.classList.remove("bg-red-500");
+                  submitBtn.classList.add("hover:bg-blue-600");
+                  submitBtn.classList.add("bg-blue-500");
+                }, 3000);
+              }
+            })
+            .catch((err) => {
+              sendNotification("Error", "An error occured while submitting");
+            });
+        })
+        .catch((err) => {
+          sendNotification("Error", "An error occured while submitting");
+        });
+    });
 }
+
 checkFields();
 document.getElementById("submit-btn").addEventListener("click", (e) => {
-  console.log("button clicked")
+  console.log("button clicked");
   e.preventDefault();
   onSubmit();
 });
+
 // Listen for input events on the fields
-document
-  .getElementById("coding-platform")
-  .addEventListener("input", checkFields);
-document
-  .getElementById("available-questions")
-  .addEventListener("input", checkFields);
-document.getElementById("code").addEventListener("input", checkFields);
-document.getElementById("time-taken").addEventListener("input", checkFields);
-document.getElementById("attempts").addEventListener("input", checkFields);
+[
+  "coding-platform",
+  "available-questions",
+  "code",
+  "time-taken",
+  "attempts",
+].forEach((fieldId) => {
+  document.getElementById(fieldId).addEventListener("input", checkFields);
+});
+
+function sendNotification(title: string, message: string) {
+  chrome.notifications.create({
+    type: "basic",
+    iconUrl: "icons/icon_128.png",
+    title,
+    message,
+  });
+}

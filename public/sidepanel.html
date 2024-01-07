@@ -3,23 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Coding Platform Tracker</title>
+    <title>A2SV Companion Extension</title>
     <!-- Include Tailwind CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
-      rel="stylesheet"
-    />
   </head>
   <body
-    class="bg-gray-800 text-white flex items-center justify-center h-screen"
+    class="bg-gray-800 w-screen text-white flex items-center justify-center h-screen"
   >
     <div class="bg-gray-800 text-white p-6 rounded-md shadow-md">
-      <div class="text-center mb-6">
+      <div class="text-center mb-6 flex flex-col justify-center items-center">
         <img
           src="icons/icon_128.png"
           alt=""
           id="avatar"
-          class="w-[30px] h-[30px] bg-gray-800 rounded-md inline-block"
+          class="w-[128px] h-[128px] bg-gray-800 rounded-md inline-block"
         />
         <h1 class="text-2xl font-semibold inline-block align-middle ml-2">
           A2SV Companion Extension
@@ -88,7 +84,7 @@
       <!-- Submit Button -->
       <button
         id="submit-btn"
-        class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+        class="disabled:opacity-50 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
         disabled
       >
         Submit
