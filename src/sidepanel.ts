@@ -17,7 +17,7 @@ async function getPlatforms(): Promise<PlatformData> {
   populateDropdown("coding-platform", ["loading..."]);
 
   try {
-    const data = await fetchData(`${config.api.mockUrl}/platform`);
+    const data = await fetchData(`${config.api.url}/platform`);
     populateDropdown("coding-platform", data.platforms);
     await getQuestions(data.platforms[0].toLowerCase());
     return data;
@@ -43,8 +43,9 @@ async function getQuestions(platform: string) {
 
   try {
     const data = await fetchData(
-      `${config.api.mockUrl}/platform/${platform}/question`,
+      `${config.api.url}/platform/${platform}/question`,
     );
+    console.log(data);
     populateQuestionDropDown(
       "available-questions",
       data.questions as QuestionInterface[],
@@ -89,16 +90,22 @@ function populateQuestionDropDown(
   selectId: string,
   options: QuestionInterface[],
 ) {
+  options.sort((a, b) => { return a.Title.localeCompare(b.Title) });
   const selectElement = document.getElementById(selectId) as HTMLSelectElement;
   selectElement.innerHTML = ""; // Clear existing options
   options.forEach((option) => {
     const optionElement = createOptionElement(option.URL, option.Title);
+    optionElement.classList.add("px-2");
     selectElement.add(optionElement);
   });
 }
 
 function createOptionElement(value: string, text: string): HTMLOptionElement {
   const optionElement = document.createElement("option");
+  // truncate if the lenght is to much
+  if (text.length > 50) {
+    text = text.substring(0, 50) + "...";
+  }
   optionElement.value = value;
   optionElement.text = text;
   return optionElement;
