@@ -16,8 +16,8 @@ const entryPoints = {
     'src',
     'content/codeforces.content.ts'
   ),
+  sidepanel: path.resolve(__dirname, 'src', 'sidepanel.ts')
 };
-
 module.exports = {
   entry: entryPoints,
   output: {
