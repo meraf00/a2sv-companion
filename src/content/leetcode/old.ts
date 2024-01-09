@@ -40,6 +40,9 @@ const injectContent = (observer: MutationObserver, observe: () => void) => {
   pushBtn.addEventListener('click', async () => {
     if (timeField.value == '') return;
 
+    span.textContent = 'Pushing...';
+    pushBtn.disabled = true;
+
     chrome.runtime.sendMessage(
       {
         from: LeetcodeContentScript,
@@ -53,6 +56,8 @@ const injectContent = (observer: MutationObserver, observe: () => void) => {
         } else {
           alert('Failed to push to sheet!');
         }
+        span.textContent = 'Push Last Submission';
+        pushBtn.disabled = false;
       }
     );
   });
