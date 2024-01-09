@@ -23,10 +23,9 @@
   "content_scripts": [
     {
       "js": ["auth.content.js"],
-      "matches": ["https://a2sv-companion-backend.vercel.app/*"],
+      "matches": ["https://a2sv-companion.vercel.app/*"],
       "run_at": "document_idle"
     },
-
     {
       "js": ["leetcode.content.js"],
       "matches": ["https://leetcode.com/*"],
@@ -39,7 +38,14 @@
       "run_at": "document_idle"
     }
   ],
-  "permissions": ["storage", "activeTab", "clipboardRead", "sidePanel", "notifications", "tabs"],
+  "permissions": [
+    "storage",
+    "activeTab",
+    "clipboardRead",
+    "sidePanel",
+    "notifications",
+    "tabs"
+  ],
 
   "host_permissions": [
     "https://api.github.com/*",
