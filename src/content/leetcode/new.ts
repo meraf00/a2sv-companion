@@ -5,7 +5,7 @@ const getSubmitBtn = () => {
   const btns = [].slice.call(
     document.querySelectorAll('button')
   ) as HTMLButtonElement[];
-  const btn = btns.filter((btn) => btn.hasAttribute('data-e2e-locator'))[0];
+  const btn = btns.filter((btn) => btn.lastChild.textContent === 'Solution')[0];
   return btn ?? null;
 };
 
