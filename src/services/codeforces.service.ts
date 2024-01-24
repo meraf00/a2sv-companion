@@ -12,7 +12,7 @@ const push = async (
   code: string,
   questionUrl: string,
   onSuccess: () => void,
-  onFailure: () => void
+  onFailure: (msg: { message: string }) => void
 ) => {
   chrome.storage.local
     .get(['selectedRepo', 'folderPath', 'studentName'])
@@ -46,10 +46,16 @@ const push = async (
               questionUrl,
               'Codeforces',
               gitUrl
-            );
+            ).then((result) => {
+              if (result === true) {
+                onSuccess();
+              } else {
+                onFailure({ message: result.status });
+              }
+            });
           })
           .then(onSuccess)
-          .catch((e) => onFailure());
+          .catch((e) => onFailure({ message: e.message }));
       });
     });
 };
@@ -72,8 +78,8 @@ const codeforcesHandler = (
       message.timeTaken,
       message.code,
       message.questionUrl,
-      () => sendResponse(true),
-      () => sendResponse(false)
+      () => sendResponse({ status: true }),
+      (result) => sendResponse(result)
     );
   }
 };

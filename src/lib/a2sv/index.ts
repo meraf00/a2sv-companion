@@ -24,7 +24,7 @@ const pushToSheet = async (
   });
 
   if (response.status == 200) return true;
-  return false;
+  return await response.json();
 };
 
 export default { pushToSheet };

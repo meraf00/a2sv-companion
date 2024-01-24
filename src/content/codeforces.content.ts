@@ -67,11 +67,11 @@ const hookSubmissionAnchors = () => {
             questionUrl,
             submission,
           },
-          (success) => {
-            if (success) {
+          (result) => {
+            if (result.status === true) {
               alert('Pushed to sheet!');
             } else {
-              alert('Failed to push to sheet!');
+              alert('Failed to push to sheet! ' + result.message);
             }
 
             (

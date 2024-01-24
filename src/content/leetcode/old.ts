@@ -40,8 +40,9 @@ const injectContent = (observer: MutationObserver, observe: () => void) => {
   pushBtn.addEventListener('click', async () => {
     if (timeField.value == '') return;
 
+    if (span.textContent === 'Pushing...') return;
+
     span.textContent = 'Pushing...';
-    pushBtn.disabled = true;
 
     chrome.runtime.sendMessage(
       {
@@ -54,10 +55,9 @@ const injectContent = (observer: MutationObserver, observe: () => void) => {
         if (result.status === 'success') {
           alert('Pushed to sheet!');
         } else {
-          alert('Failed to push to sheet!');
+          alert('Failed to push to sheet! ' + result.message);
         }
         span.textContent = 'Push Last Submission';
-        pushBtn.disabled = false;
       }
     );
   });

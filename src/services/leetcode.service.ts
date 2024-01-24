@@ -26,19 +26,29 @@ const push = async (message: any, sendResponse: (response?: any) => void) => {
       code,
       `Add solution for ${question.title}`
     ).then((gitUrl) => {
-      a2sv.pushToSheet(
-        studentName,
-        tries,
-        timeTaken,
-        'https://leetcode.com/problems/' + question.titleSlug + '/',
-        'LeetCode',
-        gitUrl
-      );
+      a2sv
+        .pushToSheet(
+          studentName,
+          tries,
+          timeTaken,
+          'https://leetcode.com/problems/' + question.titleSlug + '/',
+          'LeetCode',
+          gitUrl
+        )
+        .then((result) => {
+          console.log(result);
+          if (result === true) {
+            sendResponse({ status: 'success' });
+          } else {
+            sendResponse({ message: result.status });
+          }
+        })
+        .catch((e) => {
+          sendResponse({ message: e.message });
+        });
     });
-
-    sendResponse({ status: 'success' });
   } catch (e) {
-    sendResponse({ error: e.message });
+    sendResponse({ message: e.message });
     return;
   }
 };
