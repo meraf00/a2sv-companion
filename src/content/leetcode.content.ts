@@ -18,14 +18,12 @@ const onMutation = (observer: MutationObserver) => {
       if (hide) {
         removeContent(observer, observe);
       } else {
-        removeContent(observer, observe);
         newUi.injectContent(observer, observe);
       }
     } else {
       if (hide) {
         removeContent(observer, observe);
       } else {
-        removeContent(observer, observe);
         oldUi.injectContent(observer, observe);
       }
     }

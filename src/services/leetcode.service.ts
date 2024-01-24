@@ -36,7 +36,6 @@ const push = async (message: any, sendResponse: (response?: any) => void) => {
           gitUrl
         )
         .then((result) => {
-          console.log(result);
           if (result === true) {
             sendResponse({ status: 'success' });
           } else {

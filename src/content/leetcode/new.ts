@@ -41,22 +41,20 @@ const injectContent = (observer: MutationObserver, observe: () => void) => {
   const btnClasses = [
     'whitespace-nowrap',
     'focus:outline-none',
-    'bg-blue-s',
-    'dark:bg-dark-blue-s',
-    'hover:bg-blue-3',
-    'dark:hover:bg-dark-blue-3',
+    'text-label-r',
+    'bg-green-s',
+    'dark:bg-dark-green-s',
+    'hover:bg-green-3',
+    'dark:hover:bg-dark-green-3',
     'flex',
     'items-center',
     'justify-center',
-    'gap-1',
+    'gap-2',
+    'rounded-lg',
+    'px-3.5',
+    'py-1.5',
+    'text-sm',
     'font-medium',
-    'text-label-r',
-    'dark:text-dark-label-r',
-    'h-6',
-    'rounded',
-    'px-2',
-    'py-1',
-    'text-xs',
   ];
 
   timeField.id = 'time-taken-field';
@@ -67,6 +65,7 @@ const injectContent = (observer: MutationObserver, observe: () => void) => {
   pushBtn.id = 'push-to-sheets-btn';
   pushBtn.textContent = '';
 
+  pushBtn.className = '';
   pushBtn.classList.add(...btnClasses);
 
   const span = document.createElement('span');
